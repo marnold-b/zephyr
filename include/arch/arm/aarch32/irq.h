@@ -45,6 +45,18 @@ extern int arch_irq_is_enabled(unsigned int irq);
 extern void z_arm_irq_priority_set(unsigned int irq, unsigned int prio,
 				   uint32_t flags);
 
+#if defined(CONFIG_ZERO_LATENCY_IRQS_ARMV6_M)
+uint32_t zli_get_shadow_reg(void);
+void zli_set_shadow_reg(uint32_t new_value);
+uint32_t zli_get_mask(void);
+void zli_set_lock_flag(bool new_value);
+bool zli_locked(void);
+void zli_set_irq_status(uint32_t irq_status);
+uint32_t zli_get_irq_status(void);
+void zli_unlock_by_swap(void);
+void zli_lock_by_swap(void);
+#endif
+
 #else
 
 /*
@@ -113,7 +125,9 @@ extern void z_arm_interrupt_init(void);
  */
 #define ARCH_IRQ_CONNECT(irq_p, priority_p, isr_p, isr_param_p, flags_p) \
 { \
-	BUILD_ASSERT(IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS) || !(flags_p & IRQ_ZERO_LATENCY), \
+	BUILD_ASSERT(IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS) \
+			|| IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS_ARMV6_M) \
+			|| !(flags_p & IRQ_ZERO_LATENCY), \
 			"ZLI interrupt registered but feature is disabled"); \
 	_CHECK_PRIO(priority_p, flags_p) \
 	Z_ISR_DECLARE(irq_p, 0, isr_p, isr_param_p); \
@@ -122,7 +136,9 @@ extern void z_arm_interrupt_init(void);
 
 #define ARCH_IRQ_DIRECT_CONNECT(irq_p, priority_p, isr_p, flags_p) \
 { \
-	BUILD_ASSERT(IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS) || !(flags_p & IRQ_ZERO_LATENCY), \
+	BUILD_ASSERT(IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS) \
+			|| IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS_ARMV6_M) \
+			|| !(flags_p & IRQ_ZERO_LATENCY), \
 			"ZLI interrupt registered but feature is disabled"); \
 	_CHECK_PRIO(priority_p, flags_p) \
 	Z_ISR_DECLARE(irq_p, ISR_FLAG_DIRECT, isr_p, NULL); \

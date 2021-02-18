@@ -36,7 +36,15 @@ int arch_swap(unsigned int key)
 	_current->arch.basepri = key;
 	_current->arch.swap_return_value = _k_neg_eagain;
 
-#if defined(CONFIG_CPU_CORTEX_M)
+#if defined(CONFIG_ZERO_LATENCY_IRQS_ARMV6_M)
+	/* When using the ZL Irq feature of the ARMV6 the PendSV
+	 * exception can not be disabled. Unlock the Irqs bevor setting
+	 * the pending bit of the PendSV exception.
+	 */
+	irq_unlock(0);
+	/* set pending bit to make sure we will take a PendSV exception */
+	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+#elif defined(CONFIG_CPU_CORTEX_M)
 	/* set pending bit to make sure we will take a PendSV exception */
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
