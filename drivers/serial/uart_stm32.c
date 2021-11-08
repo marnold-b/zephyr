@@ -1380,6 +1380,42 @@ static int uart_stm32_async_init(const struct device *dev)
 
 #endif /* CONFIG_UART_ASYNC_API */
 
+#ifdef CONFIG_UART_DIRECTION
+
+int uart_stm32_enable_rx_direction(const struct device *dev)
+{
+	USART_TypeDef *UartInstance = UART_STRUCT(dev);
+
+	LL_USART_EnableDirectionRx(UartInstance);
+	return 0;
+}
+
+int uart_stm32_disable_rx_direction(const struct device *dev)
+{
+	USART_TypeDef *UartInstance = UART_STRUCT(dev);
+
+	LL_USART_DisableDirectionRx(UartInstance);
+	return 0;
+}
+
+int uart_stm32_enable_tx_direction(const struct device *dev)
+{
+	USART_TypeDef *UartInstance = UART_STRUCT(dev);
+
+	LL_USART_EnableDirectionTx(UartInstance);
+	return 0;
+}
+
+int uart_stm32_disable_tx_direction(const struct device *dev)
+{
+	USART_TypeDef *UartInstance = UART_STRUCT(dev);
+
+	LL_USART_DisableDirectionTx(UartInstance);
+	return 0;
+}
+
+#endif
+
 static const struct uart_driver_api uart_stm32_driver_api = {
 	.poll_in = uart_stm32_poll_in,
 	.poll_out = uart_stm32_poll_out,
@@ -1412,6 +1448,12 @@ static const struct uart_driver_api uart_stm32_driver_api = {
 	.rx_disable = uart_stm32_async_rx_disable,
 	.rx_buf_rsp = uart_stm32_async_rx_buf_rsp,
 #endif  /* CONFIG_UART_ASYNC_API */
+#ifdef CONFIG_UART_DIRECTION
+	.enable_rx_direction = uart_stm32_enable_rx_direction,
+	.disable_rx_direction = uart_stm32_disable_rx_direction,
+	.enable_tx_direction = uart_stm32_enable_tx_direction,
+	.disable_tx_direction = uart_stm32_disable_tx_direction,
+#endif /* CONFIG_UART_DIRECTION */
 };
 
 /**
