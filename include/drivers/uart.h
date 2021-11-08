@@ -465,6 +465,13 @@ __subsystem struct uart_driver_api {
 	int (*drv_cmd)(const struct device *dev, uint32_t cmd, uint32_t p);
 #endif
 
+#ifdef CONFIG_UART_DIRECTION
+	int (*enable_rx_direction)(const struct device *dev);
+	int (*disable_rx_direction)(const struct device *dev);
+	int (*enable_tx_direction)(const struct device *dev);
+	int (*disable_tx_direction)(const struct device *dev);
+#endif
+
 };
 
 
@@ -1555,6 +1562,96 @@ static inline int z_impl_uart_drv_cmd(const struct device *dev, uint32_t cmd,
 
 	return -ENOTSUP;
 }
+
+/**
+ * @brief Uart rx direction enable
+ *
+ * @param dev UART device structure.
+ */
+__syscall int uart_enable_rx_direction(const struct device *dev);
+
+static inline int z_impl_uart_enable_rx_direction(const struct device *dev)
+{
+#ifdef CONFIG_UART_DIRECTION
+	const struct uart_driver_api *api =
+		(const struct uart_driver_api *)dev->api;
+
+	if (api->enable_rx_direction == NULL) {
+		return -ENOSYS;
+	}
+	return api->enable_rx_direction(dev);
+#endif
+
+	return -ENOTSUP;
+}
+
+
+/**
+ * @brief Uart rx direction disable
+ *
+ * @param dev UART device structure.
+ */
+__syscall int uart_disable_rx_direction(const struct device *dev);
+
+static inline int z_impl_uart_disable_rx_direction(const struct device *dev)
+{
+#ifdef CONFIG_UART_DIRECTION
+	const struct uart_driver_api *api =
+		(const struct uart_driver_api *)dev->api;
+
+	if (api->disable_rx_direction == NULL) {
+		return -ENOSYS;
+	}
+	return api->disable_rx_direction(dev);
+#endif
+
+	return -ENOTSUP;
+}
+
+/**
+ * @brief Uart tx direction enable
+ *
+ * @param dev UART device structure.
+ */
+__syscall int uart_enable_tx_direction(const struct device *dev);
+
+static inline int z_impl_uart_enable_tx_direction(const struct device *dev)
+{
+#ifdef CONFIG_UART_DIRECTION
+	const struct uart_driver_api *api =
+		(const struct uart_driver_api *)dev->api;
+
+	if (api->enable_tx_direction == NULL) {
+		return -ENOSYS;
+	}
+	return api->enable_tx_direction(dev);
+#endif
+
+	return -ENOTSUP;
+}
+
+/**
+ * @brief Uart rx direction disable
+ *
+ * @param dev UART device structure.
+ */
+__syscall int uart_disable_tx_direction(const struct device *dev);
+
+static inline int z_impl_uart_disable_tx_direction(const struct device *dev)
+{
+#ifdef CONFIG_UART_DIRECTION
+	const struct uart_driver_api *api =
+		(const struct uart_driver_api *)dev->api;
+
+	if (api->disable_tx_direction == NULL) {
+		return -ENOSYS;
+	}
+	return api->disable_tx_direction(dev);
+#endif
+
+	return -ENOTSUP;
+}
+
 
 #ifdef __cplusplus
 }
