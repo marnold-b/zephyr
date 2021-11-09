@@ -74,6 +74,9 @@ static void uart_fifo_callback(const struct device *dev, void *user_data)
 			/* If we transmitted everything, stop IRQ stream,
 			 * otherwise main app might never run.
 			 */
+			/* Verify uart_irq_txe_enable() */
+			uart_irq_txe_disable(dev);
+			/* Verify uart_irq_tx_enable() */
 			uart_irq_tx_disable(dev);
 		}
 	}
@@ -135,11 +138,14 @@ static int test_fifo_fill(void)
 	uart_irq_callback_set(uart_dev, uart_fifo_callback);
 
 	/* Enable Tx/Rx interrupt before using fifo */
+	/* Verify uart_irq_txe_enable() */
+	uart_irq_txe_enable(uart_dev);
 	/* Verify uart_irq_tx_enable() */
 	uart_irq_tx_enable(uart_dev);
 
 	k_sleep(K_MSEC(500));
-
+	/* Verify uart_irq_tx_enable() */
+	uart_irq_txe_disable(uart_dev);
 	/* Verify uart_irq_tx_disable() */
 	uart_irq_tx_disable(uart_dev);
 

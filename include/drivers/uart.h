@@ -413,6 +413,11 @@ __subsystem struct uart_driver_api {
 	int (*fifo_read_u16)(const struct device *dev, uint16_t *rx_data,
 			     const int size);
 #endif
+	/** Interrupt driven transfer empty enabling function */
+	void (*irq_txe_enable)(const struct device *dev);
+
+	/** Interrupt driven transfer empty disabling function */
+	void (*irq_txe_disable)(const struct device *dev);
 
 	/** Interrupt driven transfer enabling function */
 	void (*irq_tx_enable)(const struct device *dev);
@@ -1118,6 +1123,45 @@ static inline int uart_fifo_read_u16(const struct device *dev,
 #endif
 
 	return -ENOTSUP;
+ * @brief Enable TXE interrupt.
+ *
+ * @param dev UART device structure.
+ *
+ * @return N/A
+ */
+__syscall void uart_irq_txe_enable(const struct device *dev);
+
+static inline void z_impl_uart_irq_txe_enable(const struct device *dev)
+{
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
+	const struct uart_driver_api *api =
+		(const struct uart_driver_api *)dev->api;
+
+	if (api->irq_txe_enable != NULL) {
+		api->irq_txe_enable(dev);
+	}
+#endif
+}
+
+/**
+ * @brief Disable TXE interrupt.
+ *
+ * @param dev UART device structure.
+ *
+ * @return N/A
+ */
+__syscall void uart_irq_txe_disable(const struct device *dev);
+
+static inline void z_impl_uart_irq_txe_disable(const struct device *dev)
+{
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
+	const struct uart_driver_api *api =
+		(const struct uart_driver_api *)dev->api;
+
+	if (api->irq_txe_disable != NULL) {
+		api->irq_txe_disable(dev);
+	}
+#endif
 }
 
 /**

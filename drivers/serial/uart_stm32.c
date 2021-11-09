@@ -590,6 +590,20 @@ static int uart_stm32_fifo_read(const struct device *dev, uint8_t *rx_data,
 	return num_rx;
 }
 
+static void uart_stm32_irq_txe_enable(const struct device *dev)
+{
+	USART_TypeDef *UartInstance = UART_STRUCT(dev);
+
+	LL_USART_EnableIT_TXE(UartInstance);
+}
+
+static void uart_stm32_irq_txe_disable(const struct device *dev)
+{
+	USART_TypeDef *UartInstance = UART_STRUCT(dev);
+
+	LL_USART_DisableIT_TXE(UartInstance);
+}
+
 static void uart_stm32_irq_tx_enable(const struct device *dev)
 {
 	USART_TypeDef *UartInstance = UART_STRUCT(dev);
@@ -619,14 +633,15 @@ static int uart_stm32_irq_tx_ready(const struct device *dev)
 	USART_TypeDef *UartInstance = UART_STRUCT(dev);
 
 	return LL_USART_IsActiveFlag_TXE(UartInstance) &&
-		LL_USART_IsEnabledIT_TC(UartInstance);
+		LL_USART_IsEnabledIT_TXE(UartInstance);
 }
 
 static int uart_stm32_irq_tx_complete(const struct device *dev)
 {
 	USART_TypeDef *UartInstance = UART_STRUCT(dev);
 
-	return LL_USART_IsActiveFlag_TC(UartInstance);
+	return LL_USART_IsActiveFlag_TC(UartInstance) &&
+		LL_USART_IsEnabledIT_TC(UartInstance);
 }
 
 static void uart_stm32_irq_rx_enable(const struct device *dev)
@@ -1391,6 +1406,8 @@ static const struct uart_driver_api uart_stm32_driver_api = {
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 	.fifo_fill = uart_stm32_fifo_fill,
 	.fifo_read = uart_stm32_fifo_read,
+	.irq_txe_enable = uart_stm32_irq_txe_enable,
+	.irq_txe_disable = uart_stm32_irq_txe_disable,
 	.irq_tx_enable = uart_stm32_irq_tx_enable,
 	.irq_tx_disable = uart_stm32_irq_tx_disable,
 	.irq_tx_ready = uart_stm32_irq_tx_ready,
