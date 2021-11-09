@@ -1,0 +1,6 @@
+tests:
+  drivers.uart.direction:
+    tags: drivers
+    filter: CONFIG_UART_STM32
+    harness: keyboard
+
